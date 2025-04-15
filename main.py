@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime
 
 import feedparser
+import requests
 from beartype import beartype
 from beartype.typing import List
 
