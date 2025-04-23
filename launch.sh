@@ -15,4 +15,4 @@ DOCKER_ARGS+=" -v $storage_volume "
 # Mount the storage directory
 # DOCKER_ARGS+=" -v $STORAGE "
 
-docker run $DOCKER_ARGS "$PROJECT_NAME" sh -c bash
+docker run $DOCKER_ARGS -v $PWD:/workspace/reading-group "$PROJECT_NAME" sh -c bash
