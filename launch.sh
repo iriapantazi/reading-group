@@ -11,6 +11,7 @@ DOCKER_ARGS+=" -v $hf_cache_volume "
 # Keep PDF or other files in the storage directory
 storage_volume="$STORAGE:/storage"
 DOCKER_ARGS+=" -v $storage_volume "
+DOCKER_ARGS+="-e HF_TOKEN=$HF_TOKEN"
 
 # Mount the storage directory
 # DOCKER_ARGS+=" -v $STORAGE "
