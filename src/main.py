@@ -59,11 +59,12 @@ def parse_args() -> argparse.Namespace:
         type=str,
         default="meta-llama/Llama-3.2-3B-Instruct",
         choices=["meta-llama/Llama-3.2-3B-Instruct", "chatgpt4o"],
-        help="The LLM model that will be used."
+        help="The LLM model that will be used. "
         "For this PoC only Llama-3.2-3B-Instruct is supported.",
     )
 
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()
