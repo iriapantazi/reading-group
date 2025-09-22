@@ -21,8 +21,8 @@ python scr/main.py --help
 
 ## Features
 
-[ ] uv
-[ ] option for external provider
-[ ] Save to markdown file
-[ ] Summarization
-[ ] RAG training
+- [ ] uv
+- [ ] option for external provider
+- [ ] Save to markdown file
+- [ ] Summarization
+- [ ] RAG training
