@@ -2,7 +2,9 @@
 
 import argparse
 from datetime import datetime
+from urllib.parse import quote, urlencode
 
+import arxiv
 import feedparser
 import requests
 from beartype import beartype
@@ -24,32 +26,83 @@ def get_arxiv_pdf(url: str) -> None:
 
 
 @beartype
-def gen_arxiv_query(keywords: List[str], max_results: int) -> str:
-    """Generate the arXiv query string."""
-    if not keywords:
-        raise ValueError("Keywords list cannot be empty.")
+def _quote_term(term: str) -> str:
+    """Wrap multi-word terms in quotes so arXiv treats them as a phrase."""
+    term = term.strip().strip('"')
+    return f'"{term}"' if " " in term else term
+
+
+@beartype
+def gen_search_query(
+    keywords: List[str], author: str, from_year: int, to_year: int
+) -> str:
+    """Generate the raw arXiv search_query string (not URL-encoded).
+
+    Both backends use this, so they send the same query.
+    """
+    if not keywords and not author:
+        raise ValueError("Provide at least one keyword or an author.")
     if len(keywords) > 5:
         raise ValueError("Maximum of 5 keywords allowed.")
-    if max_results == 1:
-        return f"http://export.arxiv.org/api/query?search_query=ti:{keywords[0]}&sortBy=lastUpdatedDate&sortOrder=descending&max_results={max_results}"  # noqa: E501
-    else:
-        query = " OR ".join(keywords)
-        return f"http://export.arxiv.org/api/query?search_query=ti:{query}&sortBy=lastUpdatedDate&sortOrder=descending&max_results={max_results}"  # noqa: E501
+    if from_year > to_year:
+        raise ValueError("from_year cannot be later than to_year.")
+
+    parts = []
+    if keywords:
+        terms = " OR ".join(f"ti:{_quote_term(k)}" for k in keywords)
+        parts.append(f"({terms})")
+    if author:
+        parts.append(f"au:{_quote_term(author)}")
+    parts.append(f"submittedDate:[{from_year}01010000 TO {to_year}12312359]")
+    return " AND ".join(parts)
+
+
+@beartype
+def gen_arxiv_query(search_query: str, max_results: int) -> str:
+    """Generate the full, URL-encoded arXiv API URL."""
+    params = {
+        "search_query": search_query,
+        "sortBy": "lastUpdatedDate",
+        "sortOrder": "descending",
+        "max_results": max_results,
+    }
+    return f"https://export.arxiv.org/api/query?{urlencode(params, quote_via=quote)}"
 
 
 @beartype
 def do_requests(args: argparse.Namespace) -> None:
-    """ """
-
-    # search_term = "llama-3"
-    query = gen_arxiv_query(args.keywords, args.max_results)
-    feed = feedparser.parse(query)
-    docs = []
+    """Query arXiv via our own URL, fetched with requests, parsed with feedparser."""
+    search_query = gen_search_query(
+        args.keywords, args.author, args.from_year, args.to_year
+    )
+    print(f"Query: {search_query}\n")
+    response = requests.get(gen_arxiv_query(search_query, args.max_results), timeout=30)
+    response.raise_for_status()
+    feed = feedparser.parse(response.text)
     for entry in feed.entries:
         published = datetime.strptime(entry.published, "%Y-%m-%dT%H:%M:%SZ")
-        if published.year >= args.published_after:
-            print(f"{entry.title} ({published.date()})")
-            print(entry.link)
-            print(entry.title)
-            print(entry.summary)
-            meta = f"Title: {entry.title}\nSummary: {entry.link}"
+        print(f"{entry.title} ({published.date()})")
+        print(entry.link)
+        print(entry.summary)
+        print()
+
+
+@beartype
+def do_arxiv_package(args: argparse.Namespace) -> None:
+    """Query arXiv with the `arxiv` package (handles paging, rate limits, retries)."""
+    search_query = gen_search_query(
+        args.keywords, args.author, args.from_year, args.to_year
+    )
+    print(f"Query: {search_query}\n")
+    client = arxiv.Client()
+    search = arxiv.Search(
+        query=search_query,
+        max_results=args.max_results,
+        sort_by=arxiv.SortCriterion.LastUpdatedDate,
+        sort_order=arxiv.SortOrder.Descending,
+    )
+    for result in client.results(search):
+        print(f"{result.title} ({result.published.date()})")
+        print(result.entry_id)
+        print(result.summary)
+        print()

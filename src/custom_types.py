@@ -1,8 +1,10 @@
+from datetime import datetime
+
 from beartype.typing import List
 from pydantic import BaseModel, Field
 
 
-def ArxivDict(BaseModel):
+class ArxivDict(BaseModel):
     """ArxivDict model."""
     link: dict = {}
     published: datetime

@@ -8,7 +8,7 @@ import requests
 from beartype import beartype
 from beartype.typing import List
 
-from utils import do_requests, get_arxiv_pdf
+from utils import do_arxiv_package, do_requests, get_arxiv_pdf
 
 
 @beartype
@@ -23,6 +23,14 @@ def parse_args() -> argparse.Namespace:
         help="The name of the website to form the URL.",
     )
     parser.add_argument(
+        "--backend",
+        type=str,
+        default="requests",
+        choices=["requests", "arxiv"],
+        help="How to query arXiv: build the URL ourselves ('requests') "
+        "or use the `arxiv` package.",
+    )
+    parser.add_argument(
         "--keywords",
         type=str,
         nargs="+",
@@ -33,13 +41,19 @@ def parse_args() -> argparse.Namespace:
         "--author",
         type=str,
         default="",
-        help="The author of the paper to search for. Not currently supported.",
+        help="The author of the paper to search for, e.g. 'Geoffrey Hinton'.",
     )
     parser.add_argument(
-        "--published-after",
+        "--from-year",
         type=int,
         default=2024,
-        help="The year after which the papers should be published.",
+        help="Earliest submission year to include.",
+    )
+    parser.add_argument(
+        "--to-year",
+        type=int,
+        default=datetime.now().year,
+        help="Latest submission year to include (defaults to the current year).",
     )
     parser.add_argument(
         "--max-results",
@@ -69,4 +83,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
     print(args)
-    do_requests(args)
+    if args.backend == "arxiv":
+        do_arxiv_package(args)
+    else:
+        do_requests(args)
