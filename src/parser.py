@@ -2,7 +2,9 @@
 
 import argparse
 from datetime import datetime
+
 from beartype import beartype
+
 
 @beartype
 def parse_args() -> argparse.Namespace:

@@ -2,7 +2,6 @@
 
 
 from parser import parse_args
-
 from utils import do_arxiv_package, do_requests
 
 if __name__ == "__main__":
