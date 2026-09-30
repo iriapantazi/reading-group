@@ -8,14 +8,18 @@ Still a WIP as summarization has not been implemented yet.
 
 ## Instructions
 
-```bash
-pip install -r requirements.txt
+Requires [uv](https://docs.astral.sh/uv/). It installs Python 3.11 and the
+dependencies into `.venv` for you.
 
-huggingface-cli login --token $HF_TOKEN
+```bash
+uv sync
 
 # see help for supported arguments
-python src/main.py --help
+uv run python src/main.py --help
 ```
+
+- Add a dependency: `uv add <package>` (dev-only: `uv add --dev <package>`).
+- `uv.lock` pins exact versions. Commit it along with `pyproject.toml`.
 
 ## Forming a request
 
@@ -40,10 +44,10 @@ abstract of each match.
 
 ```bash
 # Several keywords, one of them multi-word; single year
-python src/main.py --keywords "speech recognition" conformer --from-year 2024 --to-year 2024
+uv run python src/main.py --keywords "speech recognition" conformer --from-year 2024 --to-year 2024
 
 # Same request with the other backend, to compare
-python src/main.py --backend arxiv --keywords attention --author "Tara Sainath" --from-year 2022
+uv run python src/main.py --backend arxiv --keywords attention --author "Tara Sainath" --from-year 2022
 ```
 
 Invalid requests fail before anything is sent:
@@ -102,7 +106,7 @@ The script only uses `ti:`, `au:` and `submittedDate` for now. Full reference:
 
 ## Features
 
-- [ ] uv
+- [x] uv
 - [ ] option for external provider
 - [ ] Save to markdown file
 - [ ] Summarization
