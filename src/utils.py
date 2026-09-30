@@ -40,6 +40,7 @@ def gen_search_query(
 
     Both backends use this, so they send the same query.
     """
+    keywords = [k for k in keywords if k.strip()]
     if not keywords and not author:
         raise ValueError("Provide at least one keyword or an author.")
     if len(keywords) > 5:
