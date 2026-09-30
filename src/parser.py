@@ -58,9 +58,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--storage-dir",
         type=str,
-        default="/storage/",
-        help="The storage location for the downloaded PDFs. "
-        "This has to be a volume mounted to the container.",
+        default="storage",
+        help="The storage location for the downloaded PDFs.",
     )
     parser.add_argument(
         "--model",
