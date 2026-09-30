@@ -14,3 +14,10 @@ dependencies = [
 dev = [
     "pre-commit>=4.2.0",
 ]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+# E/F: pycodestyle errors + pyflakes (bugs, unused imports), I: import sorting (replaces isort)
+select = ["E", "F", "I"]
