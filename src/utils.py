@@ -9,7 +9,6 @@ import feedparser
 import requests
 from beartype import beartype
 from beartype.typing import List
-from langchain.schema import Document
 
 
 @beartype
